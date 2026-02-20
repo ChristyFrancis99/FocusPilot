@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore, Task, TaskStatus, TaskPriority } from '@/stores/appStore';
-import { Plus, Trash2, Calendar, Clock, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Calendar, Clock, GripVertical, Bot } from 'lucide-react';
+import { toast } from 'sonner';
 
 const statusColumns: { key: TaskStatus; label: string; color: string }[] = [
   { key: 'todo', label: 'To Do', color: 'text-muted-foreground' },
@@ -19,6 +20,7 @@ const priorityBadge: Record<TaskPriority, string> = {
 export default function Tasks() {
   const { tasks, addTask, updateTask, deleteTask } = useAppStore();
   const [showAdd, setShowAdd] = useState(false);
+  const [isAIPrioritized, setIsAIPrioritized] = useState(false);
   const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'medium' as TaskPriority, deadline: '', estimatedHours: 4, project: '' });
 
   const handleAdd = () => {
@@ -35,12 +37,26 @@ export default function Tasks() {
           <h1 className="text-2xl font-bold text-foreground">Tasks</h1>
           <p className="text-sm text-muted-foreground mt-1">{tasks.length} tasks across {new Set(tasks.map(t => t.project)).size} projects</p>
         </div>
-        <button
-          onClick={() => setShowAdd(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
-        >
-          <Plus className="w-4 h-4" /> Add Task
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              setIsAIPrioritized(!isAIPrioritized);
+              if (!isAIPrioritized) toast.success('AI has prioritized your task board based on deadlines and workload');
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+              isAIPrioritized ? 'bg-accent/20 text-accent border border-accent/30 glow-accent' : 'bg-muted border border-border text-foreground hover:bg-muted/80'
+            }`}
+          >
+            <Bot className="w-4 h-4" />
+            {isAIPrioritized ? 'AI Prioritized' : 'AI Prioritize'}
+          </button>
+          <button
+            onClick={() => setShowAdd(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            <Plus className="w-4 h-4" /> Add Task
+          </button>
+        </div>
       </motion.div>
 
       {/* Add Task Modal */}
@@ -117,7 +133,11 @@ export default function Tasks() {
       {/* Kanban Board */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {statusColumns.map((col) => {
-          const colTasks = tasks.filter((t) => t.status === col.key);
+          const priorityWeight = { urgent: 4, high: 3, medium: 2, low: 1 };
+          let colTasks = tasks.filter((t) => t.status === col.key);
+          if (isAIPrioritized) {
+            colTasks = [...colTasks].sort((a, b) => priorityWeight[b.priority] - priorityWeight[a.priority]);
+          }
           return (
             <div key={col.key} className="space-y-3">
               <div className="flex items-center gap-2 px-1">

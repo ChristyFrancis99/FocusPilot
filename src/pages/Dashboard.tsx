@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
 import KPICard from '@/components/dashboard/KPICard';
+import AIProductivityScore from '@/components/dashboard/AIProductivityScore';
 import WorkloadHeatmap from '@/components/dashboard/WorkloadHeatmap';
 import FocusChart from '@/components/dashboard/FocusChart';
 import DeadlinesPanel from '@/components/dashboard/DeadlinesPanel';
 import EarningsChart from '@/components/dashboard/EarningsChart';
 import AIInsightsPanel from '@/components/dashboard/AIInsightsPanel';
+import SmartSchedulePanel from '@/components/dashboard/SmartSchedulePanel';
 import { kpiData } from '@/lib/dummyData';
 import { Activity, Clock, Briefcase, DollarSign } from 'lucide-react';
 
@@ -27,14 +29,7 @@ export default function Dashboard() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard
-          title="Productivity Score"
-          value={`${kpiData.productivityScore}%`}
-          change="+6% vs last week"
-          changeType="positive"
-          icon={Activity}
-          delay={0.1}
-        />
+        <AIProductivityScore finalScore={kpiData.productivityScore} />
         <KPICard
           title="Weekly Hours"
           value={kpiData.weeklyHours}
@@ -67,11 +62,16 @@ export default function Dashboard() {
         <EarningsChart />
       </div>
 
+      {/* Smart Panels Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <SmartSchedulePanel />
+        <AIInsightsPanel />
+      </div>
+
       {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <WorkloadHeatmap />
         <DeadlinesPanel />
-        <AIInsightsPanel />
       </div>
     </div>
   );

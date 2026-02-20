@@ -13,7 +13,7 @@ import {
 import { useState } from 'react';
 
 const navItems = [
-  { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { path: '/tasks', icon: ListTodo, label: 'Tasks' },
   { path: '/analytics', icon: BarChart3, label: 'Analytics' },
   { path: '/assistant', icon: Bot, label: 'AI Assistant' },
